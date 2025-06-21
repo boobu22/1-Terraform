@@ -17,12 +17,11 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
-            steps {
-                echo "Terraform action is --> init"
-                sh 'terraform init'
-            }
-        }
+      stage('Terraform Init') {
+    steps {
+        sh 'terraform init -input=false -force-copy'
+    }
+}
 
         stage('Terraform Validate') {
             steps {
