@@ -1,37 +1,57 @@
 pipeline {
     agent any
 
+    environment {
+        TF_IN_AUTOMATION = "true"  // disables colored output and prompts
+    }
+
     stages {
         stage('Checkout') {
             steps {
-            checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/boobu22/1-Terraform.git']]])            
-
-          }
-        }
-        
-        stage ("terraform init") {
-            steps {
-                sh ('terraform init') 
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    extensions: [],
+                    userRemoteConfigs: [[url: 'https://github.com/boobu22/1-Terraform.git']]
+                ])
             }
         }
-        stage ("terraform validate") {
+
+        stage('Terraform Init') {
             steps {
-                echo "Terraform action is --> validate"
-                sh ('terraform validate') 
-           }
-        }
-        stage ("terraform plan") {
-            steps {
-                echo "Terraform action is --> plan"
-                sh ('terraform plan') 
-           }
+                echo "Terraform action is --> init"
+                sh 'terraform init -input=false'
+            }
         }
 
-        stage ("terraform apply") {
+        stage('Terraform Validate') {
+            steps {
+                echo "Terraform action is --> validate"
+                sh 'terraform validate'
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                echo "Terraform action is --> plan"
+                sh 'terraform plan -out=tfplan'
+            }
+        }
+
+        stage('Terraform Apply') {
             steps {
                 echo "Terraform action is --> apply"
-                sh ('terraform apply --auto-approve') 
-           }
+                sh 'terraform apply -auto-approve tfplan'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Terraform pipeline executed successfully.'
+        }
+        failure {
+            echo '❌ Terraform pipeline failed.'
         }
     }
 }
