@@ -20,7 +20,7 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 echo "Terraform action is --> init"
-                sh 'terraform init -input=false'
+                sh 'terraform init'
             }
         }
 
